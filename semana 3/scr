@@ -1,0 +1,63 @@
+#Github semana 3 Descriptores y Medidas
+#victor alfonso carrero.
+#licencia GLP-2.
+#cargar datos necesarios para la practica
+data("iris")
+iris
+#Ejer: Si la columna iris$Petal.Length tuviera valores ‘NA’, ¿Cómo podría eliminarlos 
+#antes de hacer la estimación de la media?
+# na.rm = TRUE, elimina valores NA
+mean (iris $ Petal.Length [which (iris $ Species == 'setosa')], na.rm = TRUE)
+#Ejer: Genere una función propia que le permita encontrar la mediana, tal y como lo hizo con la media aritmética.
+mediana_ancho <-función (y) {orden <-sort (y) n_datos <-length (y) mitad <-n_datos / 2 valor <-y [mitad] retorno (valor)
+moda <-función (z) {freq <- tabla (z)valor <-freq [which.max (freq)] retorno (valor)
+#Ejer: Después de generar la función del cálculo de moda, grafíquela sobre el histograma.
+hist (setosa, col = "gris",borde = "negro", prob = VERDADERO xlim = c (2.0,4.5),xlab = "ancho de pétalo",main = "Frecuencias de ancho de pétalo de setosa")
+líneas (densidad (setosa),lwd = 2, col = "verde") 
+#Ejer: Genere los cuantiles en intervalos de 0.5 Existen otras funciones que nos permiten 
+#generar cuartiles, incluyendo información de tendencias centrales. Es decir, density() pero más resumido.
+cuantil (setosa, probs = c (seq (0, 1, 0.5)))
+0% 50% 100% 
+2.3 3.4 4.4 
+#Ejer: ¿Qué sucede si el número de columnas deseado no se especifica? Obtenga la mediana, 
+#la moda y los cuantiles para cada especie de iris y para cada variable morfométrica.
+x <-c (aggregate (iris [, 1: 4], list (sp = iris $ Species), summary))
+x
+[1] setosa versicolor virginica 
+Niveles: setosa versicolor virginica
+
+$ Sepal.Longitud
+Min. 1er Qu. Mediana media 3er Qu. Max.
+[1,] 4.3 4.800 5.0 5.006 5.2 5.8
+[2,] 4.9 5.600 5.9 5.936 6.3 7.0
+[3,] 4.9 6.225 6.5 6.588 6.9 7.9
+
+$ Sepal.Width
+Min. 1er Qu. Mediana media 3er Qu. Max.
+[1,] 2.3 3.200 3.4 3.428 3.675 4.4
+[2,] 2.0 2.525 2.8 2.770 3.000 3.4
+[3,] 2.2 2.800 3.0 2.974 3.175 3.8
+
+$ Pétalo. Longitud
+Min. 1er Qu. Mediana media 3er Qu. Max.
+[1,] 1.0 1.4 1.50 1.462 1.575 1.9
+[2,] 3.0 4.0 4.35 4.260 4.600 5.1
+[3,] 4.5 5.1 5.55 5.552 5.875 6.9
+
+$ Petal.Width
+Min. 1er Qu. Mediana media 3er Qu. Max.
+[1,] 0.1 0.2 0.2 0.246 0.3 0.6
+[2,] 1.0 1.2 1.3 1.326 1.5 1.8
+[3,] 1.4 1.8 2.0 2.026 2.3 2.5
+#Ejer: grafique la distribución de frecuencias de cada población usando histograma y 
+#densidad en el mismo gráfico. Adiciones la media, la mediana y la moda.
+#pob 1
+hist (pop1, col = "orange",borde = "grenn",xlim = c (0, 9), ylim = c (0.0,50),xlab = "# individuos población",
+main = "Distribución Población 1") abline (v = media (pop1),col = "rojo",lwd = 5) abline (v = mediana (pop1),
+col = "azul",lwd = 3) abline (v = mi_moda (pop1),col = "amarillo",lwd = 3)leyenda (x = "hacia arriba", c ("Media", "Mediana", "Moda"),
+col = c ("rojo", "azul", "amarillo"),lwd = c (3, 3, 3, 3))
+#pob 2
+hist (pop2, col = "naranja",borde = "negro", xlim = c (0, 25), ylim = c (0.0,50),xlab = "# individuos población",main = "Distribución Población 2") 
+abline (v = media (pop1),col = "rojo",lwd = 3) abline (v = mediana (pop2),col = "azul",lwd = 3)
+abline (v = mi_moda (pop2), col = "amarillo", lwd = 3) leyenda (x = "hacia arriba", c ("Media", "Mediana", "Modo"), col = c ("rojo", "azul", "amarillo"),
+lwd = c (3, 3, 3, 3))
