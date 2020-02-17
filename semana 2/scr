@@ -1,0 +1,234 @@
+# Github semana 2, variables y frecuencias.
+#victor alfonso carrero.
+#licencia GLP-2.
+#para la practica es necesario descargar algunos paquetes, usanndo "data()" se puede ver los datos cargados 
+#actualmente, y "data(package = .packages(all.available = TRUE))" para observar todods los paquetes instalados
+#cargar e instalar los datos necesarios para la practica.
+data(package = .packages(all.available = TRUE))
+library("lattice")
+library("ade4")
+library("permute")
+library("vegan")
+library("ape")
+install.packages("geiger")
+install.packages("mvtnorm")
+setwd("/Users/VICTOR CARRERO/AppData/Local/Temp/RtmpkBX0zU/downloaded_packages/")
+library("geiger")
+#cargar los datos necesarios de los paquetes
+data(carnivora)
+data(jackal)
+data(jackal)
+data(BCI)
+data(mite.env)
+data(atlas)
+data(carniherbi49)
+data(corvus)
+data(tortues)
+data(geospiza)
+#Ejer: ¿Que clase de objeto es BIC? ¿Qué clase de objeto es geospiza? use la función str para obtener información sobre la estructura.
+#Los objetos tipo list, son objeto que contienen diferentes tipos y clases de objetos dentro. Por ejemplo geospiza contiene 4 objetos 
+#internos, el primero es un árbol filogénetico, el segundo es un data.frame, el tercero es un árbol filgenético y el último un data.frame.
+class(BIC)
+class(geozpiza)
+> "list"
+str(geozpiza)
+## List of 4
+##  $ geospiza.tree:List of 4
+##   ..$ edge       : num [1:26, 1:2] 15 16 17 18 19 20 21 22 23 24 ...
+##   ..$ edge.length: num [1:26] 0.2974 0.0492 0.0686 0.134 0.1035 ...
+##   ..$ Nnode      : int 13
+##   ..$ tip.label  : chr [1:14] "fuliginosa" "fortis" "magnirostris" "conirostris" ...
+##   ..- attr(*, "class")= chr "phylo"
+##  $ geospiza.data: num [1:13, 1:5] 4.4 4.35 4.22 4.26 4.24 ...
+##   ..- attr(*, "dimnames")=List of 2
+##   .. ..$ : chr [1:13] "magnirostris" "conirostris" "difficilis" "scandens" ...
+##   .. ..$ : chr [1:5] "wingL" "tarsusL" "culmenL" "beakD" ...
+##  $ phy          :List of 4
+##   ..$ edge       : num [1:26, 1:2] 15 16 17 18 19 20 21 22 23 24 ...
+##   ..$ edge.length: num [1:26] 0.2974 0.0492 0.0686 0.134 0.1035 ...
+##   ..$ Nnode      : int 13
+##   ..$ tip.label  : chr [1:14] "fuliginosa" "fortis" "magnirostris" "conirostris" ...
+##   ..- attr(*, "class")= chr "phylo"
+##  $ dat          : num [1:13, 1:5] 4.4 4.35 4.22 4.26 4.24 ...
+##   ..- attr(*, "dimnames")=List of 2
+##   .. ..$ : chr [1:13] "magnirostris" "conirostris" "difficilis" "scandens" ...
+##   .. ..$ : chr [1:5] "wingL" "tarsusL" "culmenL" "beakD" ...
+#que es geozpiza
+help("geozpiza")
+#Ejer: ¿Qué tipo de variable es tarsusL y qué clase? Abra el objeto tortues y mire ¿Qué tipo de variables tiene y qué
+#clase son?, haga lo mismo con el objeto mite.env y revise ¿Qué tipo de variable es shurb y qué clase es? Recuerde simepre
+#usar help para saber de donde vienen los datos
+#datos tortues 
+class (geospiza $ tarsusL)
+[1] "NULl"
+clase (torturas)
+[1] "data.frame"
+clase (tortues $ long)
+[1] "numérico"
+clase (tortues $ larg)
+[1] "numérico"
+clase (tortues $ haut)
+[1] "numérico"
+clase (tortues $ sexe)
+[1] "factor"
+#datos mite.evn
+View (mite.env)
+clase (mite.env)
+[1] "data.frame"
+clase (mite.env $ SubsDens)
+[1] "numérico"
+clase (mite.env $ WatrCont)
+[1] "numérico"
+clase (mite.env $ Substrate)
+[1] "factor"
+clase (mite.env $ Shrub)
+[1] "factor" "ordenado" 
+clase (mite.env $ Topo)
+[1] "factor"
+#Ejer: usando el data.frame tortues calcule la proporción de hembras y machos de la muestra
+#proporcion de machos
+sex <- c ('F', 'M')
+M <- longitud (que (tortues == 'M'))
+ M
+[1] 24
+#proporcion de hembras
+F <- longitud (que (tortues == 'F'))
+F
+[1] 24
+propocion de hembras / machos 
+paste(F, '/', M, sep = '')
+[1] "24/24"
+F / M
+[1] 1
+#relacion 1 a 1
+#Ejer: usando el data.frame tortues calcule la proporción entre el ancho y el largo del caparazón, 
+#genere una tabla con la información de tortues y la nueva variable derivada.
+medidas <-cbind (tortues $ larg, tortues $ long)
+colnames (medidas) <- c ("ancho", "largo")
+rxn <- tortues $ long / tortues $ larg
+relacion <-cbind (medidas, rxn)
+relacion
+largo ancho pxn
+[1,] 93 74 1.256757
+[2,] 94 78 1.205128
+[3,] 96 80 1.200000
+[4,] 101 84 1.202381
+[5,] 102 85 1.200000
+[6,] 103 81 1.271605
+[7,] 104 83 1.253012
+[8,] 106 83 1.277108
+[9,] 107 82 1.304878
+[10,] 112 89 1.258427
+[11,] 113 88 1.284091
+[12,] 114 86 1.325581
+[13,] 116 90 1.288889
+[14,] 117 90 1.300000
+[15,] 117 91 1.285714
+[16,] 119 93 1.279570
+[17,] 120 89 1.348315
+[18,] 120 93 1.290323
+[19,] 121 95 1.273684
+[20,] 125 93 1.344086
+[21,] 127 96 1.322917
+[22,] 128 95 1.347368
+[23,] 131 95 1.378947
+[24,] 135106 1.273585
+[25,] 98 81 1.209877
+[26,] 103 84 1.226190
+[27,] 103 86 1.197674
+[28,] 105 86 1.220930
+[29,] 109 88 1.238636
+[30,] 123 92 1.336957
+[31,] 123 95 1.294737
+[32,] 133 99 1.343434
+[33,] 133 102 1.303922
+[34,] 133105 1.266667
+[35,] 134100 1.340000
+[36,] 136102 1.333333
+[37,] 137 98 1.397959
+[38,] 138 99 1.393939
+[39,] 141105 1.342857
+[40,] 147108 1.361111
+[41,] 149107 1.392523
+[42,] 153107 1.429907
+[43,] 155115 1.347826
+[44,] 155117 1.324786
+[45,] 158115 1.373913
+[46,] 159118 1.347458
+[47,] 162124 1.306452
+[48,] 177132 1.340909
+#Ejer: ¿Cuántas especies de Corvus fueron muestreadas en la región Paleártica-Africana? Use el data.frame del 
+#género Corvus. ¿Qué porcentaje de Corvus muestreados habitan zonas abiertas
+frecuency <-table (corvus $ phylog)
+frecuency
+amer orien pale 
+6 13 9 
+habitat <-table (corvus $ habitat)
+hábitat
+clos abierto 
+11 17 
+prop.table (hábitat)
+clos abierto 
+0.3928571 0.6071429
+#Ejer: ¿Cómo luce el gŕafico de frecuencias para los tipos de hábitat del género Corvus?
+plot (prop.table (habitat), main = "Corvus segun el tipo de habitad", ylab = "Freq de la especie", col = c ("orange", "blue"))
+#Ejer: encuentre el máximo, así como lo hizo para el mínimo
+# Sumar las ocurrencias de cada especie
+atlas $ birds
+xsp <- apply (atlas $ birds, 2, sum)
+# mínimo 
+min (xsp)
+[1] 2
+which.min (xsp)
+Fauvette_melanocephale 
+8 
+xsp [which.min (xsp)]
+Fauvette_melanocephale 
+2 
+min (xsp)
+[1] 2
+x <- which.min (xsp)
+xsp [x]
+Fauvette_melanocephale 
+2 
+#maxinmo
+y <-which.max (xsp)
+y
+Fauvette_des_jardins 
+2 
+xsp [y]
+Fauvette_des_jardins 
+56 
+#Ejer: Repita el ejercicio para las variables continuas de tamaño de pico y tamaño del ala en el 
+#género Corvus. Busque cómo cambiar colores, ejes y algunas propiedades que le permitan mejorar el 
+#diseño del histograma.
+# maximo pico
+max (corvus $ bill)
+[1] 85
+#minimo pico
+min (corvus $ bill)
+[1] 45
+rank (corvus $ bill)
+[1] 45 85
+#maximo alas
+max (corvus $ ala)
+[1] 473
+#minimo alas
+min (corvus $ ala)
+[1] 226
+rango (corvus $ ala)
+[1] 226 473
+hist (corvus $ bill, col = "orange", main = "Corvus pico", xlab = "tamaño en mm")
+hist (corvus $ wing, col = "blue", main = "Corvus alas", xlab = "tamaño en mm")
+# Invente unos datos de medidas, como se hizo en el caso de los crímenes, y genere todo el ejercicio hasta el histograma. 
+#Busque otro tipo de distribuciones para generar las variables [ejemplo] [3]. 
+#Busque en qué casos sirve cada distribución o para qué se usan.
+
+#altura y peso de personas de mediana edad 
+altura <- rnorm (n = 60, media = 1,68 , sd = 2)
+peso <- rnorm (n = 60, media = 62, sd = 3)
+prom <- (altura / peso)
+personas <- cbind (altura, peso, prom)
+Tabla <- as.data.frame (cbind (paste ('spp', 1: 60, sep = '_'), personas))
+colnames (personas) <- c ('Individuo', 'altura', 'peso', "prom")
+hist (personas $ prom, main = "relcion altura y peso", col = "orange")
