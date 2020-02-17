@@ -1,0 +1,72 @@
+#Github semana 8 TLC y error estandar
+#victor alfonso carrero.
+#licencia GLP-2.
+#Imagine una población de 5000 tortugas de la especie Caretta caretta. Una nidada 
+#podría tener entre 20 a 50 huevo
+set.seed(999)
+#poblacion
+pop <- ceiling(rnorm(5000, mean = 35,sd = 1))
+# 3 muestreos
+m1 <- sample(x = pop,size = 10, replace = T)
+m2 <- sample(x = pop,size = 10, replace = T)
+m3 <- sample(x = pop,size = 10, replace = T)
+#error estandar
+sd(c(m1,m2,m3))/sqrt(length(c(m1,m2,m3)))
+#Ejer:  Aumente el valor de desviación estándar y evalúe cómo cambia 
+#el error estándar. 
+pop <- ceiling(rnorm(5000, mean = 35,sd = 6))
+m1 <- sample(x = pop,size = 10, replace = T)
+m2 <- sample(x = pop,size = 10, replace = T)
+m3 <- sample(x = pop,size = 10, replace = T)
+sd(c(m1,m2,m3))/sqrt(length(c(m1,m2,m3)))
+# a medida que la desviacion estandar crece, el error tambien.
+#Ejer:  Cambie aumente el tamaño de la muestra y evalúe cómo cambia el error estándar.
+#Para el caso donde la población no sigue una distribución normal.
+help(set.seed)
+set.seed(999)
+#aumento # de muestras 
+pop <- ceiling(rnorm(5000, mean = 35,sd = 6))
+m1 <- sample(x = pop,size = 400, replace = T)
+m2 <- sample(x = pop,size = 400, replace = T)
+m3 <- sample(x = pop,size = 400, replace = T)
+sd(c(m1,m2,m3))/sqrt(length(c(m1,m2,m3)))
+ #disminuye el error aumentando el numero de muestra.
+> #Ejer: Cambie el tamaño de muestra y evalúe el valor de error estándar. ¿Cuánto debería 
+> #aumentar la muestra para que el error estándar disminuya a la mitad?
+> set.seed(999)
+> #disminuye el error aumentando el numero de muestra.
+> #Ejer: Cambie el tamaño de muestra y evalúe el valor de error estándar. ¿Cuánto debería 
+> #aumentar la muestra para que el error estándar disminuya a la mitad?
+> set.seed(999)
+> # Generar la población
+> pop <- ceiling(rnorm(5000, mean = 35,sd = 1))
+> # Tomar muestras en tres playas distintas
+> m1 <- sample(x = pop,size = 10, replace = T)
+> # Tomar muestras en tres playas distintas
+> m1 <- sample(x = pop,size = 10, replace = T)
+> m2 <- sample(x = pop,size = 10, replace = T)
+> m3 <- sample(x = pop,size = 10, replace = T)
+> boxplot(cbind(m1,m2,m3))
+> myhist <- hist(pop) 
+> # Error estandar 
+> x<- sd(c(m1,m2,m3))/sqrt(length(c(m1,m2,m3)))
+> # Error estandar 
+> x<- sd(c(m1,m2,m3))/sqrt(length(c(m1,m2,m3)))
+> sdm <- sd(c(m1,m2,m3))  
+> muestras<- sdm/(x/2)
+> muestras^2
+[1] 120
+> muestras^2/3
+[1] 40
+> pop <- ceiling(rnorm(5000, mean = 35,sd = 1))
+> # Tomar muestras en tres playas distintas
+> m1 <- sample(x = pop,size = 40, replace = T)
+> # Tomar muestras en tres playas distintas
+> m1 <- sample(x = pop,size = 40, replace = T)
+> m2 <- sample(x = pop,size = 40, replace = T)
+> m3 <- sample(x = pop,size = 40, replace = T)
+> boxplot(cbind(m1,m2,m3))
+> x<- sd(c(m1,m2,m3))/sqrt(length(c(m1,m2,m3)))
+> x
+[1] 0.09763485
+#tomando muestras de a 40 se disminuye el error estandar inicial a la mitad
