@@ -1,0 +1,465 @@
+#Composición y estructura arbórea en zonas suburbanas y urbanas del área metropolitana de Bucaramanga
+#integrantes:
+#Santiago Castillo Amaya
+#Victor Alfonso Carrero Pulido
+#Marlly Valentina Mendez Blanco
+
+library(readxl)
+tabla <- read_excel("c:/Users/VICTOR CARRERO/Documents/4 semestre/proyectos/estadistica/Rarbol/datos_T.xlsx",
+                    col_types = c("text","numeric", "numeric", "numeric", "text","numeric"))
+#paquetes
+if(!require(ape)){install.packages("ape")}
+if(!require(ggplot2)){install.packages("ggplot2")}
+if(!require(ggridges)){install.packages("ggridges")}
+if(!require(plyr)){install.packages("plyr")}
+if(!require(Rmisc)){install.packages("Rmisc")}
+if(!require(dplyr)){install.packages("dplyr")}
+if(!require(biotools)){install.packages("biotools")}
+if(!require(moments)){install.packages("moments")}
+if(!require(nortest)){install.packages("nortest")}
+if(!require(rcompanion)){install.packages("rcompanion")}
+if(!require(car)){install.packages("car")}
+if(!require(HardyWeinberg)){install.packages("HardyWeinberg")}
+
+#calibrar la confianza de las muestras a traves de tres estadisticos basicos: 
+#la desviacion estandar de la muestra, la curtosis y la asimetra.
+# La media y la varianza son los dos primeros momentos estadasticos, proporcionan 
+#informacion sobre la ubicacion y la variabilidad (propagacion, dispersion) del conjunto 
+#de datos y, al hacerlo, proporcionar cierta informacion sobre la apariencia de la distribucion.
+
+attach(tabla)
+m1<- c(tabla$altura[which(tabla$parcela =='1')])
+m2<- c(altura[which(parcela =='2')])
+m3<- c(altura[which(parcela =='3')])
+m4<- c(altura[which(parcela =='4')])
+varianza<- function (x)   sum((x-mean(x))^2)/(length(x)-1)
+
+#varianzas
+varianza(m1)
+varianza(m2)
+varianza(m3)
+varianza(m4)
+
+#rango, cuartiles, media, mediana
+summary(m1)
+summary(m2)
+summary(m3)
+summary(m4)
+
+#el tercer momento se usa para definir la asimetria o inclinacion de una distriducion
+
+skewness(m1)
+#moderadamente sesgada a la derecha: 0.7487387
+skewness(m2)
+#aproximadamente sesgada derecha: 0.4092761
+skewness(m3)
+#moderadamente sesgada a la derecha: 0.5524725
+skewness(m4)
+#aproximadamente sesgada a la derecha: 0.1048935
+
+# el cuarto momento estadistico es la curtosis, es una medida de la planitud o el pico de una distribucion.
+
+kurtosis(altura[which(parcela=='1')])
+#leptocurtica: 2.960505
+kurtosis(m2)
+#leptocurtica: 2.670981
+kurtosis(m3)
+#leptocurtica: 1.455042
+kurtosis(m4)
+#leptocurtica: 2.21167
+#mesocurtica = 0, platicurtica < 0, leptocurtica > 0
+
+#media, mediana, desviacion estandar  
+ddply(tabla, 'parcela', summarise, grp.mean=mean(altura),
+      grp.median=median(altura),
+      grp.SD=sd(altura))
+
+#longitud de los datos
+table(parcela)
+
+#momentos estadisticos tomado de: Momentos estadaticos (y la forma de las distribuciones)
+#http://geog.uoregon.edu/GeogR/topics/moments.pdf
+
+###---###---###---###---###---###---###---###---###---###---###---###---###---###---###---
+
+# analisis exploratorios de datos (EDA) 
+#definido por John W. Tukey (E.D.A.: Exploratory data analysis) tomado de: https://r4ds.had.co.nz/exploratory-data-analysis.html
+#es el tratamiento estadastico al que se someten las muestras recogidas durante un proceso 
+#de investigacion en cualquier campo cientifico.
+
+#herramientas de EDA: visualizacion, transformacion y modelado.
+library(tidyverse)
+
+#visualizacion de las distribuciones/ exploracion visual de los datos.
+#observada mediante puntos(distribucion de puntos), como frecuencias(histogramas) o como
+#una distribucion (boxplot)
+#histogramas
+
+ggplot(tabla)+
+  geom_histogram(aes(x=altura, fill=parcela))+
+  facet_wrap(~parcela)
+
+ggplot(data = tabla, mapping = aes(x = altura, colour = parcela)) +
+  geom_freqpoly(binwidth = 1.5)
+
+
+#diagrama de cajas y bigotes
+
+ggplot(tabla)+
+  geom_boxplot(aes(x=parcela, y= altura, fill= parcela),outlier.colour = "red", outlier.shape = 1)
+
+ggplot(tabla ) +
+  geom_violin(aes(x=parcela, y=altura, fill=parcela, color=parcela),alpha=0.4,width=1.4) +
+  geom_boxplot(aes(x=parcela, y=altura),outlier.colour = "red", outlier.shape = 16,width=0.1)+
+  geom_jitter(aes(x=parcela, y=altura),alpha=0.4)
+
+
+#valores atipicos
+#observacion de valores atipicos
+ggplot(tabla) + 
+  geom_histogram(mapping = aes(x = altura,fill=parcela), binwidth = 1) +
+  coord_cartesian(ylim = c(0, 10))+  facet_wrap(~parcela)
+#3:"ancho de bin", ylim: zoom
+
+
+###---###---###---###---###---###---###---###---###---###---###---###---###---###---###---
+
+#normalidad de mis datos
+#Entender si las variables de trabajo se ajustan a una distribucion normal es basico 
+#para poder seleccionar el test de hipotesis (pruebas de bondad de ajuste-contraste de
+#hipotesis). Muchas pruebas en estadistica fisheriana dependen de este supuesto. Tambien
+#es importante el tamaño de las muestras para el test. 
+
+#primer acercamiento al ajuste de normalidad de una muestra es cuando se calculan los 
+#momentos estadasitcos (hecho con anterioridad) o se explican los datos visualmente.
+
+# prueba grafica;analisis exploratorio  
+
+ggplot(tabla, aes(sample = altura, colour = parcela)) +
+  stat_qq() +
+  stat_qq_line()
+
+#estadistica parametrica: comprende los procedimientos estadísticos y de decisión
+#que están basados en distribuciones conocidas.
+#supuestos: Distribucion Normal, Homogeneidad de Varianzas
+
+#realizacion de test de normalidad.
+#Permiten evaluar la hipotesis de normalidad
+#H0 = Los datos provienen de una poblacion distribuida normalmente. P>0.05 al 95%
+#HA = Los datos provienen de un poblacion que no se distribuye normalmente
+
+#Test de Shapiro-Wilk
+#Cuando la muestra tiene un tamaño menor a 50
+
+#para cada muestra
+shapiro.test(x = m1)
+#P>0.05
+shapiro.test(x = m2)
+#P>0.05
+shapiro.test(x = m3)
+#p<0.05
+shapiro.test(x = m4)
+#p<0.05
+
+#transformar datos.
+skewness(altura)
+#ligeramente sesgada: -0.08492264
+kurtosis(altura)
+#leptocurtica > 0: 2.346715
+
+T_altura<- transformTukey(altura)
+#labmda: 0.9673
+altura.2<- (altura)^0.9673
+m1.2<- altura.2[which(parcela== '1')]
+m2.2<- altura.2[which(parcela== '2')]
+m3.2<- altura.2[which(parcela== '3')]
+m4.2<- altura.2[which(parcela== '4')]
+shapiro.test(m1.2)
+shapiro.test(m2.2)
+shapiro.test(m3.2)
+shapiro.test(m4.2)
+
+#no normalidad en 2/4
+
+#sacar los valores atipicos
+remove_outliers <- function(x, na.rm = TRUE, ...) {
+  qnt <- quantile(x, probs=c(.25, .75), na.rm = na.rm, ...)
+  H <- 1.5 * IQR(x, na.rm = na.rm)
+  y <- x
+  y[x < (qnt[1] - H)] <- NA
+  y[x > (qnt[2] + H)] <- NA
+  y
+}
+
+altura_sin<-remove_outliers(altura)
+T_altura_sin<- transformTukey(altura_sin)
+#labmda: 0.9673
+#transformar variable sin outlallers
+altura_sin<- (altura)^0.9673
+m1.2_sin<- altura_sin[which(parcela== '1')]
+m2.2_sin<- altura_sin[which(parcela== '2')]
+m3.2_sin<- altura_sin[which(parcela== '3')]
+m4.2_sin<- altura_sin[which(parcela== '4')]
+shapiro.test(m1.2_sin)
+shapiro.test(m2.2_sin)
+shapiro.test(m3.2_sin)
+shapiro.test(m4.2_sin)
+
+#no normalidad en 2/4 muestras sin valores atipicos.
+
+#Homogeneidad de varianzas - HOMOCEDASTICIDAD
+# Se refiere si la varianza es constante entre las muestras. Es una propiedad importante 
+#para cuando se quiere evaluar diferencias entre grupos muestreados (2 o mas muestras)
+#Ho = la varianza es igual entre los grupos 
+#HA= Existen diferencias en la varianza entre los grupos.
+
+#Test de Levene
+#Puede ser utilizado para dos o mas muestras al mismo tiempo. Permite estimar 
+#homocedasticidad para variables que no siguien normalidad.
+leveneTest(altura.2 ~ parcela)
+#P<0.05
+leveneTest(altura_sin ~ parcela)
+#p<0.05
+
+#datos no parametricos
+
+###---###---###---###---###---###---###---###---###---###---###---###---###---###---###
+
+#prueba de bondad de ajuste, contraste de hipotesis: describe lo bien que se ajusta un 
+#conjunto de observaciones generando un contraste entre valores observados y esperados
+#ref cuadro de semana 12-13 (anexo PNG, o JPG); ANOVA
+
+#ANOVA no parametrica
+#contraste de hipotesis  
+#Prueba H de Kruskal-Wallis
+#Ho: Los datos provienen de la misma distribución.p>0.05 al 95%
+#Ha: No Todas las medias son iguales (al menos Una no es igual)
+  
+kruskal.test(altura ~ parcela, data= tabla)
+
+#p<0.05
+
+ggplot(tabla)+
+geom_boxplot(aes(x=parcela, y= altura, fill= parcela),outlier.colour = "red", outlier.shape = 1)
+
+#Existe una diferencia significativa entre la altura de los arboles entre las parcelas 
+
+#prueba post-hot/post-ANOVA
+install.packages("pgirmess")
+library(pgirmess)
+kruskalmc(altura~ parcela, data=tabla)
+#      obs.dif critical.dif difference
+#1-2  5.576923     22.17225      FALSE
+#1-3  5.173077     23.46879      FALSE
+#1-4 33.915158     19.94053       TRUE
+#2-3 10.750000     24.32594      FALSE
+#2-4 28.338235     20.94259       TRUE
+#3-4 39.088235     22.31070       TRUE
+
+#existen diferencias entre las parcelas 1-4, 2-4, y 3-4
+#las medias entre las UM 3 y 4 son diferentes, significa que son medias de poblaciones diferentes, 
+#aun cuando estas son representativas para la zona urbana.
+#la UM tambien es diferente para 1 y 2, debido a que son poblaciones diferentes, representado por el
+#lugar de muestreo, pero UM 1 y 2 son poblaciones iguales. 3 con 1 y 2 no representa que sean de la misma 
+#poblacion, que aunque sus medias de altura no varian lo suficinte difieren en cuanto a la composicion arborea.
+
+###---###---###---###---###---###---###---###---###---###---###---###---###---###---###---
+
+#correlacion (altura/DAP)
+#nos permite saber si hay relacion entre dos variables y si la hay qué tan fuerte es esta 
+#relación. Sin embargo, esto no implica que exista causalidad, esto es simplemente asociación.
+
+#Covarianza: Parámetro que indica el grado de variación conjunta de dos variables y el
+#sentido de estas
+
+#Correlación de producto momento de Pearson: test parametrico que mide la dependencia lineal 
+#entre 2 variables
+#luego de cumplir los supuestos de normalidad
+
+ggplot(tabla, aes(sample = altura))+
+  stat_qq() + stat_qq_line()
+
+ggplot(tabla, aes(sample = DAP))+
+  stat_qq() + stat_qq_line()
+
+#prubebas de normalidad para DAP
+skewness(DAP)
+#1.47078
+kurtosis(DAP)
+#3.511735
+lillie.test(DAP)
+#p<0.05
+#trasnformar DAP
+T_DAP<- transformTukey(DAP)
+#labmda: -0.525
+DAP.2<- -1*(DAP)^-0.525
+lillie.test(DAP.2)
+#P<0.05
+
+#DAP no parametrico sobre el conjunto de datos
+#altura no parametrica sobre el conjunto de datos
+#correlacion no parametrica
+#Ho: La correlación en la población es cero (ƿ=0)
+#H1: La correlación en la población es diferente de cero (ƿ≠0)
+cor.test(altura,DAP,  method="kendall")
+#p<0.05
+#es significativo; existe una correlacion directa pero devil
+plot(altura, DAP)
+
+#regresion lineal
+lm(altura~DAP)
+relacion<- lm(altura~DAP)
+summary(relacion)
+#p<0.05 en t al 95%
+
+scatter.smooth(x=altura, y=DAP, main="altura~DAP")
+
+#correlacion del DAP y altura segun los morfotipos
+#DAP segun morfotipos
+DAP1<- c(DAP[which(morfotipo=='1')])
+#DAP 2 no valido (<3 individuos)
+DAP3<- c(DAP[which(morfotipo=='3')])
+DAP4<- c(DAP[which(morfotipo=='4')])
+DAP5<- c(DAP[which(morfotipo=='5')])
+DAP6<- c(DAP[which(morfotipo=='6')])
+DAP7<- c(DAP[which(morfotipo=='7')])
+DAP8<- c(DAP[which(morfotipo=='8')])
+DAP9<- c(DAP[which(morfotipo=='9')])
+#normalidad para DAP segun morfotipos
+shapiro.test(DAP1)
+#p<0.05
+shapiro.test(DAP3)
+#p<0.05
+shapiro.test(DAP4)
+#p>0.05
+shapiro.test(DAP5)
+#p<0.05
+shapiro.test(DAP6)
+#p>0.05
+shapiro.test(DAP7)
+#p>0.05
+shapiro.test(DAP8)
+#p<0.05
+shapiro.test(DAP9)
+#p>0.05
+
+
+#altura segun morfotipos
+alt1<- c(altura[which(morfotipo=='1')])
+#alt2 no valido(<3 individuos)
+alt3<- c(altura[which(morfotipo=='3')])
+alt4<- c(altura[which(morfotipo=='4')])
+alt5<- c(altura[which(morfotipo=='5')])
+alt6<- c(altura[which(morfotipo=='6')])
+alt7<- c(altura[which(morfotipo=='7')])
+alt8<- c(altura[which(morfotipo=='8')])
+alt9<- c(altura[which(morfotipo=='9')])
+#normalidad para altura segun morfotipos
+shapiro.test(alt1)
+#p<0.05
+shapiro.test(alt3)
+#p>0.05
+shapiro.test(alt4)
+#p>0.05
+shapiro.test(alt5)
+#p>0.05
+shapiro.test(alt6)
+#p>0.05
+shapiro.test(alt7)
+#p>0.05
+shapiro.test(alt8)
+#P<0.05
+shapiro.test(alt9)
+#p>0.05
+
+#homogenidad de varianza entre DAP
+leveneTest(DAP ~ morfotipo) 
+#P>0.05
+#la varianza es igual entre los grupos
+#los datos se consideran de una distribucion normal
+
+#correlacion parametrica entre altura y DAP de los morfotipos
+#Ho: La correlación en la población es cero (p=0)
+
+#morfotipo 1
+cor.test(y = alt1,x = DAP1, method = "pearson")
+#p>0.05,  cor: 0.01174902
+#regresion
+relacion1 <- lm(alt1~DAP1)
+summary(relacion1)
+scatter.smooth(x=alt1, y=DAP1, main="alt/DAP-morfotipo1")
+
+#morfotipo 3
+cor.test(y = alt3,x = DAP3, method = "pearson")
+#p>0.05,  cor: 0.1193665 
+#regresion
+relacion3 <- lm(alt3~DAP3)
+summary(relacion3)
+scatter.smooth(x=alt3, y=DAP3, main="alt/DAP-morfotipo3")
+
+#morfotipo 4
+cor.test(y = alt4,x = DAP4, method = "pearson")
+#p<0.05,  cor: 0.9722733
+#regresion
+relacion4 <- lm(alt4~DAP4)
+summary(relacion4)
+scatter.smooth(x=alt4, y=DAP4, main="alt/DAP-morfotipo4")
+
+#morfotipo 5
+cor.test(y = alt5,x = DAP5, method = "pearson")
+#p<0.05,  cor: 0.8579093
+#regresion
+relacion5 <- lm(alt5~DAP5)
+summary(relacion5)
+scatter.smooth(x=alt5, y=DAP5, main="alt/DAP-morfotipo5")
+
+#morfotipo 6
+cor.test(y = alt6,x = DAP6, method = "pearson")
+#p<0.05,  cor: 0.5384884
+#regresion
+relacion6 <- lm(alt6~DAP6)
+summary(relacion6)
+scatter.smooth(x=alt6, y=DAP6, main="alt/DAP-morfotipo6")
+
+#morfotipo 7
+cor.test(y = alt7,x = DAP7, method = "pearson")
+#p<0.05,  cor: 0.5108876 
+#regresion
+relacion7 <- lm(alt7~DAP7)
+summary(relacion7)
+scatter.smooth(x=alt7, y=DAP7, main="alt/DAP-morfotipo7")
+
+#morfotipo 8
+cor.test(y = alt8,x = DAP8, method = "pearson")
+#p<0.05,  cor:  0.8468493
+#regresion
+relacion8 <- lm(alt8~DAP8)
+summary(relacion8)
+scatter.smooth(x=alt8, y=DAP8, main="alt/DAP-morfotipo8")
+
+#morfotipo 9
+cor.test(y = alt9,x = DAP9, method = "pearson")
+#p<0.05,  cor:  0.8896812
+#regresion
+relacion9 <- lm(alt9~DAP9)
+summary(relacion9)
+scatter.smooth(x=alt9, y=DAP9, main="alt/DAP-morfotipo9")
+
+###---###---###---###---###---###---###---###---###---###---###---###---###---###
+
+hist(altura)
+
+ggplot(tabla)+
+  geom_histogram(aes(x=altura, fill=morfotipo))+
+  facet_wrap(~parcela)
+
+###---###---###---###---###---###---###---###---###---###---###---###---###---###---###---###
+
+#integrantes
+#Victor Alfonso Carrero Pulido - 2181540
+#Santiago Castillo Amaya - 2180013
+#Marlly Valentina Mendez Blanco - 2180010
+
+#agradecimientos a:
+#Yasmin Plata Diaz
+#Viviana Romero Alarcon
